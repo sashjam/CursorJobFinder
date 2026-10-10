@@ -1,0 +1,25 @@
+---
+description: JobDesk — конвенции парсеров
+globs: jobdesk/parsers/**/*.py
+alwaysApply: false
+---
+
+# Парсеры JobDesk
+
+1. Регистрация в `register.py` → `ALL_PARSERS`.
+2. Подсказка UI в `source_notes.py` → `SOURCE_QUERY_HINT`.
+3. `python tools/update_docs.py` — обновить автотаблицу источников.
+4. `dedupe_key` = `{source_id}:{external_id}` — id стабильный и уникальный на сайте.
+
+```python
+make_vacancy(
+    source=self.source_id,
+    external_id="...",
+    title="...",
+    url="https://...",
+    company="...",
+    subscription=subscription,
+)
+```
+
+Ошибки парсера — пробрасывать наверх; `engine.run_fetch` покажет их пользователю по подписке.

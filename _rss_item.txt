@@ -1,0 +1,10 @@
+<item>
+      <title>Требуется «ML-инженер (Python · PyTorch · fine-tuning )» (Москва)</title>
+      <description>Компания «Урал Логистика» ищет хорошего специалиста на вакансию «ML-инженер (Python · PyTorch · fine-tuning )». Москва (Россия). Полный рабочий день. Требуемые навыки: #middle, #Машинноеобучение, #Linux, #PyTorch, #Python, #SQL.</description>
+      <author>Урал Логистика</author>
+      <pubDate>Tue, 06 Oct 2026 10:23:57 +0300</pubDate>
+      <link>https://career.habr.com/vacancies/1000168684</link>
+      <guid>1000168684</guid>
+      <image>https://habrastorage.org/getpro/moikrug/uploads/company/100/008/724/3/logo/medium_4cdfb2d6fcc23921a80170ba6f3f6c82.png</image>
+    </item>
+    

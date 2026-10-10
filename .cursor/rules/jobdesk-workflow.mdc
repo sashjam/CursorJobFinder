@@ -1,0 +1,35 @@
+---
+description: JobDesk — правила работы и синхронизация документации
+alwaysApply: true
+---
+
+# JobDesk
+
+## Документация (обязательно)
+
+После изменений в коде обновляй `docs/JobDesk.md` и запускай:
+
+```bash
+python tools/update_docs.py
+```
+
+| Изменение | Действие |
+|-----------|----------|
+| Новый/удалённый парсер (`register.py`) | `SOURCE_QUERY_HINT` + `python tools/update_docs.py` |
+| Версия (`jobdesk/__init__.py`) | `update_docs.py` |
+| GUI, БД, env, архитектура | Раздел в `docs/JobDesk.md` вручную + правила в § «Правила работы» |
+| Зависимости | `requirements.txt` + установка в доке |
+
+Единый источник списка источников: `jobdesk/parsers/register.py` + `source_notes.py`. Таблицы в доке между `<!-- jobdesk:sources:auto -->` — только через скрипт.
+
+## Код парсеров
+
+- Наследуй `JobParser`: `source_id`, `display_name`, `fetch()`.
+- Используй `jobdesk.http_client` и `make_vacancy()` из `parsers/common.py`.
+- Предпочитай RSS/API; HTML — умеренный объём запросов.
+- Секреты только в `.env`; **агент не открывает `.env`** — см. `jobdesk-secrets.mdc`. Код: `jobdesk/config.py`.
+- После изменений notify/Telegram/GUI — обнови § «Уведомления» и «Правила» в `docs/JobDesk.md`.
+
+## Объём diff
+
+- Минимальный scope; не трогать `_probe*.py` без запроса.
