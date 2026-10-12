@@ -157,11 +157,43 @@ JOBDESK_ALLOW_REGISTRATION=false
 
 ### 3. Python на сервере
 
+**VPS с sudo** (venv):
+
 ```bash
 cd /var/www/jobdesk
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-web.txt
 ```
+
+**Shared-хостинг без sudo** (нет `python3-venv`, `apt` недоступен):
+
+```bash
+cd ~/job
+python3 -m pip install --user -r requirements-web.txt
+```
+
+В `backend/.env`:
+
+```env
+JOBDESK_PYTHON=/usr/bin/python3
+```
+
+(путь уточните: `which python3`.)
+
+Если `--user` не срабатывает или пакеты не видны из PHP, установка в каталог проекта:
+
+```bash
+cd ~/job
+mkdir -p python_packages
+python3 -m pip install --target "$HOME/job/python_packages" -r requirements-web.txt
+```
+
+```env
+JOBDESK_PYTHON=/usr/bin/python3
+JOBDESK_PYTHONPATH=/home/s/sashjam/job/python_packages
+```
+
+Venv создавайте в **корне** `~/job/.venv`, не в `backend/.venv`.
 
 Проверка:
 

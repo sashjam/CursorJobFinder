@@ -65,6 +65,11 @@ final class JobDeskPython
             $pythonPath .= PATH_SEPARATOR.$userSite;
         }
 
+        $extraPath = trim((string) env('JOBDESK_PYTHONPATH', ''));
+        if ($extraPath !== '') {
+            $pythonPath .= PATH_SEPARATOR.$extraPath;
+        }
+
         $env = [
             'PYTHONPATH' => $pythonPath,
             'PYTHONIOENCODING' => 'utf-8',
