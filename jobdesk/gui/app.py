@@ -9,11 +9,11 @@ import customtkinter as ctk
 
 from jobdesk.db import Database
 from jobdesk.desired import derive_search_query
-from jobdesk.engine import ensure_default_subscription, run_fetch
+from jobdesk.engine import run_fetch
 from jobdesk.app_badge import apply_badge
-from jobdesk.config import ensure_env_loaded, reload_env, telegram_status_label
+from jobdesk.config import ensure_env_loaded, env_file_path, reload_env, telegram_status_label, telegram_validate
 from jobdesk.locations import CITY_OPTIONS, locations_to_json, parse_locations_json
-from jobdesk.telegram_notify import send_test_message
+from jobdesk.telegram_notify import send_test_message, send_test_vacancy
 from jobdesk.notify import notify_after_fetch
 from jobdesk.parsers.base import get_registry
 from jobdesk.parsers.source_notes import SOURCE_QUERY_HINT, UNSUPPORTED_NOTE
@@ -32,7 +32,6 @@ class JobDeskApp(ctk.CTk):
 
         ensure_env_loaded()
         self.db = Database()
-        ensure_default_subscription(self.db)
 
         self._fetch_lock = threading.Lock()
         self._status_var = ctk.StringVar(value="Готово")
@@ -64,12 +63,14 @@ class JobDeskApp(ctk.CTk):
         tab_s = self.tabs.add("Подписки")
         tab_set = self.tabs.add("Настройки")
         tab_src = self.tabs.add("Источники")
+        tab_help = self.tabs.add("Справка")
 
         self._build_vacancies_tab(tab_v)
         self._build_desired_tab(tab_w)
         self._build_subscriptions_tab(tab_s)
         self._build_settings_tab(tab_set)
         self._build_sources_tab(tab_src)
+        self._build_help_tab(tab_help)
 
         status = ctk.CTkLabel(self, textvariable=self._status_var, anchor="w")
         status.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 10))
@@ -288,9 +289,15 @@ class JobDeskApp(ctk.CTk):
 
         tg_btns = ctk.CTkFrame(parent, fg_color="transparent")
         tg_btns.grid(row=3, column=0, columnspan=2, sticky="w", padx=8)
-        ctk.CTkButton(tg_btns, text="Проверить Telegram", width=150, command=self._test_telegram).pack(
+        ctk.CTkButton(tg_btns, text="Тест Telegram", width=120, command=self._test_telegram).pack(
             side="left", padx=(0, 8)
         )
+        ctk.CTkButton(
+            tg_btns,
+            text="Тест: вакансия в Telegram",
+            width=200,
+            command=self._test_telegram_vacancy,
+        ).pack(side="left", padx=(0, 8))
         ctk.CTkButton(
             tg_btns,
             text="Перечитать .env",
@@ -301,10 +308,26 @@ class JobDeskApp(ctk.CTk):
 
         ctk.CTkLabel(
             parent,
-            text="Переменные: BOT (chat id), BOT_NAME, BOT_TOKEN в .env рядом с main.py.\n"
-            "Фоновый опрос включённых подписок по интервалу из настроек.",
+            text=(
+                f"Файл: {env_file_path()}\n"
+                "BOT — числовой chat id · BOT_TOKEN — от @BotFather · BOT_NAME — подпись в сообщениях\n"
+                "После правки .env нажмите «Перечитать .env». Формат — вкладка «Справка» или .env.example"
+            ),
             justify="left",
+            wraplength=720,
         ).grid(row=4, column=0, columnspan=2, sticky="w", padx=8, pady=8)
+
+    def _build_help_tab(self, parent: ctk.CTkFrame) -> None:
+        from pathlib import Path
+
+        parent.grid_columnconfigure(0, weight=1)
+        parent.grid_rowconfigure(0, weight=1)
+        guide_path = Path(__file__).resolve().parents[2] / "docs" / "USER_GUIDE.md"
+        text = guide_path.read_text(encoding="utf-8") if guide_path.is_file() else "Файл docs/USER_GUIDE.md не найден."
+        box = ctk.CTkTextbox(parent, wrap="word")
+        box.grid(row=0, column=0, sticky="nsew", padx=8, pady=8)
+        box.insert("1.0", text)
+        box.configure(state="disabled")
 
     def _build_sources_tab(self, parent: ctk.CTkFrame) -> None:
         parent.grid_columnconfigure(0, weight=1)
@@ -378,15 +401,34 @@ class JobDeskApp(ctk.CTk):
         self._status_var.set(f"Telegram: {msg}")
 
     def _test_telegram(self) -> None:
+        ok, hint = telegram_validate()
+        if not ok:
+            self._status_var.set(f"Telegram: {hint}")
+            return
         self._status_var.set("Отправка теста в Telegram…")
         send_test_message(
-            on_result=lambda ok, msg: self.after(0, lambda: self._telegram_test_done(ok, msg))
+            on_result=lambda o, m: self.after(0, lambda: self._telegram_test_done(o, m))
+        )
+
+    def _test_telegram_vacancy(self) -> None:
+        ok, hint = telegram_validate()
+        if not ok:
+            self._status_var.set(f"Telegram: {hint}")
+            return
+        self._status_var.set("Отправка тестовой вакансии в Telegram…")
+        send_test_vacancy(
+            on_result=lambda o, m: self.after(0, lambda: self._telegram_test_done(o, m))
         )
 
     def _telegram_test_done(self, ok: bool, msg: str) -> None:
         reload_env()
         self.telegram_status.configure(text=telegram_status_label())
-        self._status_var.set(f"Telegram: {msg}")
+        if ok:
+            self._status_var.set(f"Telegram: успех — {msg}")
+        else:
+            _, hint = telegram_validate()
+            extra = f" ({hint})" if hint != "OK" else ""
+            self._status_var.set(f"Telegram: {msg}{extra}")
 
     def _reload_env_ui(self) -> None:
         reload_env()

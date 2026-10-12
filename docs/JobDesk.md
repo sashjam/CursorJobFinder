@@ -53,11 +53,7 @@ python main.py
 
 Точка входа: `main.py` → `jobdesk.gui.app.run_app()`.
 
-При **первом запуске**, если подписок нет, создаётся подписка по умолчанию:
-
-- название: «Python — Хабр RSS»
-- источник: `habr_rss`
-- запрос: `python`
+Подписки **не создаются автоматически** — добавьте их на вкладке «Подписки» (источник + запрос), иначе «Обновить с сайтов» сообщит, что нет включённых подписок.
 
 ---
 
@@ -142,7 +138,7 @@ python main.py
 | ID | Название в UI | Поле «Запрос» |
 |----|---------------|---------------|
 | `geekjob_html` | 🇷🇺 GeekJob (HTML) | Параметр q |
-| `hh_api` | 🇷🇺 HeadHunter (API) | Текст поиска; нужен JOBDESK_HH_USER_AGENT=App/1.0 (email) |
+| `hh_api` | 🇷🇺 HeadHunter (API → HTML fallback) | Текст поиска; при ошибке API — автоматически HTML. JOBDESK_HH_USER_AGENT=App/1.0 (email) |
 | `hh_html` | 🇷🇺 HeadHunter / hh.ru (HTML) | Текст поиска, как на hh.ru |
 | `rabota_html` | 🇷🇺 Rabota.ru (HTML) | Строка query |
 | `superjob_html` | 🇷🇺 SuperJob (HTML) | Ключевые слова (keywords) |

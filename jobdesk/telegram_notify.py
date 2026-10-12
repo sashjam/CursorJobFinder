@@ -33,6 +33,10 @@ def send_new_vacancies(
 
 
 def send_test_message(*, on_result: Callable[[bool, str], None] | None = None) -> None:
+    if not telegram_enabled():
+        if on_result:
+            on_result(False, "Telegram не настроен (BOT + BOT_TOKEN в .env)")
+        return
     threading.Thread(
         target=_send_text,
         args=(
@@ -41,6 +45,27 @@ def send_test_message(*, on_result: Callable[[bool, str], None] | None = None) -
         ),
         daemon=True,
     ).start()
+
+
+def send_test_vacancy(*, on_result: Callable[[bool, str], None] | None = None) -> None:
+    """Отправить в Telegram пример сообщения с тестовой вакансией."""
+    if not telegram_enabled():
+        if on_result:
+            on_result(False, "Telegram не настроен (BOT + BOT_TOKEN в .env)")
+        return
+    sample = Vacancy(
+        external_id="test",
+        source="jobdesk_test",
+        title="Python / Fullstack Developer (тест JobDesk)",
+        company="Пример работодателя",
+        url="https://career.habr.com/vacancies",
+        description="Это тестовое сообщение. Реальные вакансии приходят после «Обновить с сайтов».",
+        city="Москва · удалённо",
+        published_at=None,
+    )
+    text = _format_message([sample])
+    text = f"[ТЕСТ]\n{text}\n\nЕсли видите это — формат уведомлений о вакансиях настроен верно."
+    threading.Thread(target=_send_text, args=(text, on_result), daemon=True).start()
 
 
 def _format_message(items: list[Vacancy]) -> str:

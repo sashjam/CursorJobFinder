@@ -134,13 +134,3 @@ def _subscription_for_fetch(
         return sub
     return replace(sub, query=query)
 
-
-def ensure_default_subscription(db: Database) -> None:
-    if db.list_subscriptions():
-        return
-    db.add_subscription(
-        name="Python — Хабр RSS",
-        source="habr_rss",
-        query="python",
-        exclude_words="",
-    )
