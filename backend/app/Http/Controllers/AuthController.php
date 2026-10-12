@@ -12,6 +12,10 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        if (! config('jobdesk.allow_registration')) {
+            abort(403, 'Регистрация отключена.');
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],

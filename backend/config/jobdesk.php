@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'allow_registration' => filter_var(env('JOBDESK_ALLOW_REGISTRATION', true), FILTER_VALIDATE_BOOLEAN),
+
     'sources' => [
         ['id' => 'habr_rss', 'name' => 'Хабр Карьера (RSS)', 'hint' => 'Текст q, как на career.habr.com (например: python remote)'],
         ['id' => 'habr_html', 'name' => 'Хабр Карьера (HTML)', 'hint' => 'Текст q для страницы вакансий'],

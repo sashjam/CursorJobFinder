@@ -35,6 +35,8 @@ cd frontend && npm install && npm run dev
 
 Откройте http://localhost:5173 — без входа доступны только логин и регистрация; интерфейс JobDesk после авторизации.
 
+Сборка для production / VPS: `python tools/deploy_web.py` (см. [docs/WEB.md](docs/WEB.md)).
+
 ## Подключённые источники (20)
 
 | Регион | Сайт | ID в приложении |
