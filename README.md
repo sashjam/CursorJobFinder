@@ -12,7 +12,7 @@
 python tools/update_docs.py
 ```
 
-## Запуск
+## Запуск (десктоп)
 
 ```bash
 pip install -r requirements.txt
@@ -20,6 +20,20 @@ python main.py
 ```
 
 Данные: `%LOCALAPPDATA%\JobDesk\jobdesk.db`
+
+## Запуск (веб: Laravel + Vue SPA)
+
+Инструкция: [docs/WEB.md](docs/WEB.md)
+
+```bash
+# API
+cd backend && composer install && php artisan migrate && php artisan serve
+
+# SPA (другой терминал)
+cd frontend && npm install && npm run dev
+```
+
+Откройте http://localhost:5173 — без входа доступны только логин и регистрация; интерфейс JobDesk после авторизации.
 
 ## Подключённые источники (20)
 
