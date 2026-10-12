@@ -56,9 +56,53 @@ python tools/deploy_web.py
 
 ---
 
-## VPS: Apache, MySQL, без dev-серверов
+## VPS: Apache, MySQL, без dev-sерверов
 
-Document root домена: **`backend/public`** (каталог репозитория выше web root).
+### Вариант A: document root = `backend/public`
+
+Каталог репозитория **выше** web root (рекомендуется, если панель позволяет указать путь).
+
+### Вариант B: document root = `public_html` (job.saintweb.ru и аналоги)
+
+Корень сайта на диске, например `~/job.saintweb.ru/`:
+
+```text
+job.saintweb.ru/
+  backend/          # Laravel (не открывается напрямую из браузера)
+  jobdesk/
+  tools/
+  .venv/
+  public_html/      # ← сюда смотрит домен job.saintweb.ru
+    index.php       # вход в Laravel (../backend)
+    .htaccess
+    spa-index.html
+    assets/
+```
+
+**Не кладите** весь репозиторий внутрь `public_html` — наружу должны попасть только файлы из списка выше.
+
+Сборка и синхронизация:
+
+```bash
+python tools/deploy_web.py
+python tools/sync_public_html.py
+```
+
+Для **job.saintweb.ru** в `backend/.env`:
+
+```env
+APP_URL=https://job.saintweb.ru
+SESSION_DOMAIN=job.saintweb.ru
+SANCTUM_STATEFUL_DOMAINS=job.saintweb.ru
+FRONTEND_URL=https://job.saintweb.ru
+JOBDESK_PYTHON=/home/ВАШ_ЛОГИН/job.saintweb.ru/.venv/bin/python
+```
+
+(подставьте реальный путь к домашней папке с сайтом.)
+
+---
+
+Document root по умолчанию в доке: **`backend/public`** (вариант A).
 
 ```text
 /var/www/jobdesk/
